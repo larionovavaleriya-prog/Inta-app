@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INTA Annual Meeting — Подготовка</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, serif; background: #F8F7F4; color: #1a1a1a; }
+  button { font-family: Georgia, serif; cursor: pointer; }
+  .view { display: none; }
+  .view.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ HOME VIEW ═══════════════════════ -->
+<div id="view-home" class="view active">
+  <div style="background:#1F4E79;padding:24px 20px 20px;text-align:center;">
+    <div style="font-size:11px;color:#93C5FD;letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;">Подготовка к</div>
+    <div style="font-size:22px;font-weight:700;color:#fff;letter-spacing:1px;">INTA Annual Meeting</div>
+    <div style="font-size:13px;color:#93C5FD;margin-top:4px;">Лондон • 30 апреля 2026</div>
+    <div style="margin-top:20px;background:rgba(255,255,255,0.1);border-radius:12px;padding:14px 16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:12px;color:#BFDBFE;">Выполнено дней</span>
+        <span id="progress-text" style="font-size:16px;font-weight:700;color:#fff;">0 / 33</span>
+      </div>
+      <div style="background:rgba(255,255,255,0.15);border-radius:100px;height:8px;overflow:hidden;">
+        <div id="progress-bar" style="width:0%;background:linear-gradient(90deg,#60A5FA,#34D399);height:100%;border-radius:100px;transition:width 0.5s;"></div>
+      </div>
+      <div id="progress-pct" style="text-align:right;font-size:11px;color:#93C5FD;margin-top:4px;">0%</div>
+    </div>
+  </div>
+
+  <div id="phase-tabs" style="display:flex;gap:8px;padding:16px 16px 0;"></div>
+
+  <div style="display:flex;gap:10px;padding:12px 16px 0;">
+    <button id="btn-today" onclick="goToday()" style="flex:2;background:#1F4E79;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;display:none;align-items:center;justify-content:center;gap:6px;">▶ Сегодня</button>
+    <button onclick="showView('phrases')" style="flex:1;background:#fff;color:#1F4E79;border:2px solid #1F4E79;border-radius:10px;padding:12px;font-size:12px;font-weight:700;">📋 Фразы</button>
+  </div>
+
+  <div id="days-list" style="padding:16px 16px 80px;"></div>
+</div>
+
+<!-- ═══════════════════════ DAY VIEW ═══════════════════════ -->
+<div id="view-day" class="view">
+  <div id="day-header"></div>
+  <div id="day-steps" style="padding:16px 16px 100px;"></div>
+</div>
+
+<!-- ═══════════════════════ PHRASES VIEW ═══════════════════════ -->
+<div id="view-phrases" class="view">
+  <div style="background:#1F4E79;padding:20px 16px 16px;">
+    <button onclick="showView('home')" style="background:rgba(255,255,255,0.2);border:none;color:#fff;padding:6px 14px;border-radius:20px;font-size:13px;margin-bottom:12px;">← Назад</button>
+    <div style="font-size:20px;font-weight:700;color:#fff;">📋 Якорные фразы</div>
+    <div style="font-size:12px;color:#93C5FD;margin-top:4px;">Выучи наизусть — они спасут в любой ситуации</div>
+  </div>
+  <div id="phrases-body" style="padding:16px 16px 40px;"></div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const PHASES = [
+  { id:1, label:"Фаза 1", title:"Разговориться",       color:"#2563EB", light:"#DBEAFE", days:"28 мар – 10 апр" },
+  { id:2, label:"Фаза 2", title:"Лексика и акценты",   color:"#059669", light:"#D1FAE5", days:"11 – 24 апр" },
+  { id:3, label:"Фаза 3", title:"Финальный спринт",    color:"#DC2626", light:"#FEE2E2", days:"25 – 29 апр" },
+];
+
+const DAYS = [
+  { day:1, date:"28 мар (Сб)", phase:1, min:35, focus:"Старт. Диагностика", steps:[
+    { app:"App Store / Google Play", icon:"📱", title:"Установи приложения", time:"10 мин", instructions:["Установи ELSA Speak (тренер произношения)","Установи Anki (флэшкарты для IP-терминов)","Подпишись на BBC Global News Podcast (Spotify / Podcasts)"], done_check:"Оба приложения установлены и открываются" },
+    { app:"Диктофон", icon:"🎙️", title:"Запись «точка отсчёта»", time:"10 мин", instructions:["Открой стандартный диктофон на телефоне","Запиши 1–2 минуты: расскажи по-английски о себе — «My name is... I work in trademark law... I'm going to INTA in London...»","Не останавливайся и не исправляй — говори как умеешь","Сохрани файл: «День 1 — старт»"], done_check:"Аудио сохранено. Через 33 дня сравнишь — разница удивит!" },
+    { app:"ELSA Speak", icon:"🗣️", title:"Первый урок ELSA", time:"15 мин", instructions:["Открой ELSA Speak → пройди вступительный тест уровня","После теста: раздел «Pronunciation» → тема «Consonants»","Сделай 2–3 упражнения — просто познакомься с приложением","ELSA покажет какие именно звуки ты произносишь неверно"], done_check:"Прошёл тест, сделал 2 упражнения" },
+  ]},
+  { day:2, date:"29 мар (Вс)", phase:1, min:40, focus:"Первый shadowing", steps:[
+    { app:"Spotify / Podcasts", icon:"🎧", title:"BBC Shadowing", time:"15 мин", instructions:["Открой BBC Global News Podcast → последний выпуск","Слушай 5 минут обычно — просто воспринимай","Перемотай назад. Включай по 1 предложению → ПАУЗА → повторяй вслух","Копируй интонацию, ритм, паузы — как актёр дублирует роль","Пройди так 3–4 минуты. Это и есть техника Shadowing"], done_check:"Повторял предложения вслух минимум 10 раз" },
+    { app:"Заметки (телефон)", icon:"📝", title:"Фразы знакомства", time:"10 мин", instructions:["Создай заметку «INTA фразы»","Напиши и произнеси вслух 5 раз каждую фразу:","1. «Hi, I'm [имя]. I work in trademark law in [город].»","2. «What brings you to the conference?»","3. «Have you been to London before?»","4. «How long have you been in IP law?»","5. «What's your area of focus — prosecution or litigation?»"], done_check:"Все 5 фраз произносишь без паузы и запинки" },
+    { app:"Заметки (телефон)", icon:"✍️", title:"Дневник на английском", time:"10 мин", instructions:["Создай заметку «Дневник — День 2»","Напиши 4–5 предложений о дне на английском","Пример: «Today I started my English preparation. I installed ELSA app...»","ВАЖНО: пиши без словаря. Ошибки — это нормально."], done_check:"Минимум 3 предложения написаны" },
+  ]},
+  { day:3, date:"30 мар (Пн)", phase:1, min:40, focus:"Произношение + IP старт", steps:[
+    { app:"ELSA Speak", icon:"🗣️", title:"ELSA — Daily Lesson", time:"10 мин", instructions:["Открой ELSA Speak → Daily Lesson","Обращай внимание на звуки [θ] (think), [ð] (the), [w] (work)","Каждый звук повторяй вслух до зелёного индикатора"], done_check:"Урок завершён, получил обратную связь по звукам" },
+    { app:"Spotify / Podcasts", icon:"🎧", title:"BBC Shadowing", time:"15 мин", instructions:["BBC Global News Podcast → продолжи с прошлого места","Техника та же: 1 предложение → пауза → повтори","Сегодня попробуй повторять ОДНОВРЕМЕННО со спикером"], done_check:"15 минут shadowing выполнено" },
+    { app:"Anki", icon:"🃏", title:"Создай IP-колоду", time:"15 мин", instructions:["Открой Anki → нажми «+» → Create Deck → назови «INTA IP Terms»","Добавь первые 10 карточек (лицевая = английский, оборот = русский):","1. trademark / trade mark — товарный знак","2. trademark infringement — нарушение прав на товарный знак","3. likelihood of confusion — вероятность смешения","4. priority date — дата приоритета","5. well-known mark — общеизвестный знак","6. opposition proceedings — процедура возражения","7. Madrid Protocol — Мадридский протокол","8. Nice Classification — Ниццкая классификация","9. passing off — использование репутации","10. dilution — размывание знака","Сделай первое повторение колоды"], done_check:"10 карточек добавлены и пройдены первый раз" },
+  ]},
+  { day:4, date:"31 мар (Вт)", phase:1, min:40, focus:"Смолл-ток блоки", steps:[
+    { app:"ELSA Speak", icon:"🗣️", title:"ELSA — Business English", time:"10 мин", instructions:["Открой ELSA Speak → Business English → «Introductions»","Повторяй каждую фразу минимум 3 раза до зелёного результата"], done_check:"Урок завершён" },
+    { app:"Anki", icon:"🃏", title:"Anki — новые IP термины", time:"10 мин", instructions:["Открой Anki → колода «INTA IP Terms» → Study Now","Пройди все карточки. Добавь 5 новых:","11. cancellation action — иск об аннулировании","12. descriptiveness — описательность","13. acquired distinctiveness — приобретённая различительная способность","14. coexistence agreement — соглашение о сосуществовании","15. EUIPO — Ведомство ЕС по интеллектуальной собственности"], done_check:"15 карточек в колоде, все пройдены" },
+    { app:"Заметки (телефон)", icon:"📝", title:"Фразы: уход из разговора", time:"10 мин", instructions:["Добавь в заметку «INTA фразы» и произнеси 5 раз каждую:","1. «It was really nice meeting you — I hope we get to chat more later.»","2. «I should go catch that session — great talking to you!»","3. «Let me grab your business card before you go.»","4. «I'll let you mingle — enjoy the rest of the conference.»","5. «We should definitely connect on LinkedIn.»"], done_check:"Все фразы добавлены и произнесены вслух" },
+    { app:"Заметки (телефон)", icon:"✍️", title:"Дневник", time:"10 мин", instructions:["4–5 предложений о дне. Попробуй написать о чём-то профессиональном:","«Today I had a case about... / My client asked about... / I was working on...»"], done_check:"Дневник написан" },
+  ]},
+  { day:5, date:"1 апр (Ср)", phase:1, min:45, focus:"Чтение вслух IP-текстов", steps:[
+    { app:"Spotify / Podcasts", icon:"🎧", title:"BBC Shadowing", time:"15 мин", instructions:["BBC Global News Podcast → НОВЫЙ выпуск (сегодняшний)","Shadowing первые 5–7 минут","Обращай внимание как спикер соединяет слова (linking): «it is» → «itis»"], done_check:"15 минут shadowing" },
+    { app:"Браузер → inta.org", icon:"🌐", title:"Чтение IP-текста вслух", time:"15 мин", instructions:["Зайди на inta.org → раздел «Resources»","Найди любую короткую статью или пресс-релиз","Читай вслух медленно и чётко — 1–2 абзаца","Незнакомые слова: произнеси как звучит, потом проверь в словаре"], done_check:"Прочитал вслух минимум 1 абзац" },
+    { app:"Anki", icon:"🃏", title:"Anki — повторение", time:"10 мин", instructions:["Anki → Study Now → пройди все карточки","НЕ добавляй новые — только повторение"], done_check:"Повторение завершено" },
+    { app:"Заметки (телефон)", icon:"✍️", title:"Дневник", time:"5 мин", instructions:["3 предложения. Быстро, без перфекционизма."], done_check:"3+ предложения написаны" },
+  ]},
+  { day:6, date:"2 апр (Чт)", phase:1, min:40, focus:"Произношение и акцент", steps:[
+    { app:"ELSA Speak", icon:"🗣️", title:"ELSA — Stress & Rhythm", time:"15 мин", instructions:["ELSA Speak → Pronunciation → «Stress and Rhythm»","Пройди 3–4 упражнения на ударение в словах","Потом → «Connected Speech» — самое важное для натурального звучания"], done_check:"Оба раздела пройдены" },
+    { app:"Заметки (телефон)", icon:"📝", title:"Фразы «я не расслышал»", time:"10 мин", instructions:["Добавь в «INTA фразы» и произнеси 5 раз каждую:","1. «Sorry, could you say that again?»","2. «I want to make sure I got that right — did you say...?»","3. «Could you speak a little slower?»","4. «Sorry, I missed that — what was the last part?»","5. «Forgive me — I'm still getting used to different accents!» (с улыбкой)","ВАЖНО: переспросить — это профессионально, а не стыдно."], done_check:"Фразы выучены" },
+    { app:"Anki", icon:"🃏", title:"Anki + свои термины", time:"10 мин", instructions:["Anki → повторение","Добавь 5 своих терминов из реальной работы"], done_check:"Повторение завершено" },
+    { app:"Заметки (телефон)", icon:"✍️", title:"Дневник", time:"5 мин", instructions:["3–4 предложения. Используй хотя бы 1 IP-термин из Anki."], done_check:"Написан" },
+  ]},
+  { day:7, date:"3 апр (Пт)", phase:1, min:30, focus:"Итог Недели 1", steps:[
+    { app:"Диктофон", icon:"🎙️", title:"Запись «Неделя 1»", time:"10 мин", instructions:["Запиши себя 1–2 минуты — так же как в День 1","Сохрани как «День 7 — Неделя 1»","Послушай День 1 и День 7 подряд"], done_check:"Слышишь разницу? Ты уже прогрессируешь!" },
+    { app:"Anki + Заметки", icon:"🃏", title:"Повторение всех фраз", time:"15 мин", instructions:["Anki → вся колода","Заметка «INTA фразы» → прочитай вслух ВСЕ фразы за неделю","Нестабильные фразы → повтори 5 раз"], done_check:"Все фразы пройдены вслух" },
+    { app:"italki.com (браузер)", icon:"💻", title:"Зарегистрируйся на italki", time:"5 мин", instructions:["Зайди на italki.com → создай аккаунт (бесплатно)","Фильтр: Professional Teacher → English → Community Tutor","Просмотри 2–3 профиля, почитай отзывы","СЕГОДНЯ только выбери кандидата — урок забронируй завтра"], done_check:"Аккаунт создан, репетитор выбран" },
+  ]},
+  { day:8, date:"4 апр (Сб)", phase:1, min:45, focus:"TED Talk + бронь italki", steps:[
+    { app:"YouTube", icon:"▶️", title:"TED Talk — Shadowing", time:"15 мин", instructions:["YouTube → поиск: «TED Talk English subtitles 2024»","Выбери любой TED Talk с чётким американским акцентом","Рекомендации: Simon Sinek, Brené Brown, Adam Grant","Смотри 5 мин С субтитрами — читай и слушай одновременно","Потом выключи субтитры и делай Shadowing: пауза → повтори"], done_check:"Shadowing с TED выполнен" },
+    { app:"italki.com", icon:"💻", title:"Забронируй первый урок!", time:"10 мин", instructions:["Открой italki.com → выбери репетитора → Book a lesson → 60 минут","Найди время на 11 апреля (Сб)","В поле «Notes for teacher» напиши:","«I need to practice small talk for a professional IP/trademark conference in London on April 30. I'm B1-B2. Please do roleplay: you're a lawyer I just met.»"], done_check:"Урок забронирован на 11 апреля — это ключевое действие!" },
+    { app:"Anki + Заметки", icon:"🃏", title:"Anki + дневник", time:"15 мин", instructions:["Anki → повторение всей колоды","Дневник: 4–5 предложений о том что планируешь делать в Лондоне"], done_check:"Выполнено" },
+  ]},
+  { day:9, date:"5 апр (Вс)", phase:1, min:40, focus:"Смолл-ток: тема Лондон", steps:[
+    { app:"Spotify / Podcasts", icon:"🎧", title:"BBC — параллельный shadowing", time:"15 мин", instructions:["BBC Podcast → свежий выпуск","Сегодня пробуй говорить ОДНОВРЕМЕННО со спикером без паузы","Это называется «параллельный shadowing» — сложнее, но очень эффективно"], done_check:"15 мин выполнено" },
+    { app:"Заметки (телефон)", icon:"📝", title:"Смолл-ток про Лондон", time:"15 мин", instructions:["На конференции ОБЯЗАТЕЛЬНО спросят про Лондон. Подготовь вслух:","— «Have you had a chance to explore the city?»","— «I'd love to visit [место] while I'm here.»","— «The weather is... well, very London!» (все смеются)","— «Is this your first time at INTA?»","Придумай и произнеси вслух 3 ответа на «Do you like London so far?»"], done_check:"Ответы про Лондон готовы" },
+    { app:"Anki", icon:"🃏", title:"Anki", time:"10 мин", instructions:["Повторение. Добавь 5 новых если есть силы."], done_check:"Выполнено" },
+  ]},
+  { day:10, date:"6 апр (Пн)", phase:1, min:40, focus:"10 вопросов для нетворкинга", steps:[
+    { app:"ELSA Speak", icon:"🗣️", title:"ELSA — Networking", time:"10 мин", instructions:["ELSA Speak → Business English → «Networking»"], done_check:"Урок завершён" },
+    { app:"Spotify / Podcasts", icon:"🎧", title:"BBC Shadowing", time:"15 мин", instructions:["BBC Podcast → свежий выпуск → Shadowing 12–15 мин"], done_check:"Выполнено" },
+    { app:"Заметки (телефон)", icon:"📝", title:"10 вопросов для нетворкинга", time:"15 мин", instructions:["Запиши и произнеси вслух 3 раза каждый вопрос:","1. «What firm / company are you with?»","2. «Which sessions have you found most valuable so far?»","3. «What's the biggest IP challenge in your jurisdiction right now?»","4. «Are you here for the full week or just a few days?»","5. «What brings you to INTA this year specifically?»","6. «Have you worked with the Madrid system much?»","7. «How are the AI and trademark issues playing out in your country?»","8. «Is your practice more prosecution or enforcement?»","9. «Do you usually come to INTA every year?»","10. «What do you think of the new EUIPO guidelines?»"], done_check:"Все 10 вопросов произносишь автоматически" },
+  ]},
+  { day:11, date:"7 апр (Вт)", phase:1, min:40, focus:"Elevator Pitch — 3 версии", steps:[
+    { app:"Spotify / Podcasts", icon:"🎧", title:"BBC Shadowing", time:"15 мин", instructions:["BBC Podcast → новый выпуск → Shadowing"], done_check:"Выполнено" },
+    { app:"Диктофон", icon:"🎙️", title:"Elevator Pitch — 3 версии", time:"20 мин", instructions:["Запиши себя — 3 версии pitch:","КОРОТКАЯ (15 сек): «I'm a trademark lawyer in [город]. I help companies protect their brands internationally.»","СРЕДНЯЯ (30 сек): добавь про мадридскую систему и основные рынки","ДЛИННАЯ (60 сек): добавь интересный кейс без деталей","Послушай записи. Что звучит неестественно — перепиши своими словами"], done_check:"Три версии записаны и прослушаны" },
+    { app:"Anki", icon:"🃏", title:"Anki", time:"5 мин", instructions:["Быстрое повторение колоды."], done_check:"Выполнено" },
+  ]},
+  { day:12, date:"8 апр (Ср)", phase:1, min:40, focus:"Понимание на слух", steps:[
+    { app:"YouTube", icon:"▶️", title:"TED Talk — без субтитров", time:"20 мин", instructions:["Открой тот же TED Talk что смотрел в День 8","Смотри ПОЛНОСТЬЮ без субтитров","После: напиши в заметках 3–4 предложения — о чём говорил спикер?","Потом включи субтитры и проверь что понял, что пропустил"], done_check:"Понял 50%+ без субтитров? Отлично для этого этапа!" },
+    { app:"ELSA Speak", icon:"🗣️", title:"ELSA — Vowels", time:"10 мин", instructions:["ELSA Speak → Pronunciation → «Vowels»","Звуки [æ] (cat, that), [ʌ] (but, come) — часто путают носители русского"], done_check:"Урок завершён" },
+    { app:"Anki + Заметки", icon:"🃏", title:"Anki + дневник", time:"10 мин", instructions:["Повторение. Дневник: 3–4 предложения."], done_check:"Выполнено" },
+  ]},
+  { day:13, date:"9 апр (Чт)", phase:1, min:40, focus:"Фразы-заглушки пока думаешь", steps:[
+    { app:"Spotify / Podcasts", icon:"🎧", title:"BBC — одновременный shadowing", time:"15 мин", instructions:["BBC Podcast → новый выпуск","Пробуй shadowing без паузы — одновременно со спикером всё время"], done_check:"Выполнено" },
+    { app:"Заметки (телефон)", icon:"📝", title:"Фразы «думаю над ответом»", time:"10 мин", instructions:["Выучи как мантры — произноси по 5 раз каждую:","— «That's a really interesting question...»","— «Let me think about that for a second.»","— «Good point — I'd say...»","— «I've never thought about it that way, but...»","— «It depends — in our jurisdiction it's a bit different...»"], done_check:"Фразы вылетают автоматически" },
+    { app:"Anki", icon:"🃏", title:"Anki + дневник", time:"15 мин", instructions:["Anki → повторение. Добавь 5 новых слов из недели.","Дневник: 3 предложения — используй хотя бы 1 фразу-заглушку."], done_check:"Выполнено" },
+  ]},
+  { day:14, date:"10 апр (Пт)", phase:1, min:35, focus:"✅ Итог Фазы 1", steps:[
+    { app:"Диктофон", icon:"🎙️", title:"Финальная запись Фазы 1", time:"15 мин", instructions:["Запиши без подготовки — около 3 минут:","1 мин: Elevator pitch (короткая + средняя версия)","1 мин: «What brings you to INTA this year?»","1 мин: Расскажи о Лондоне — что хочешь посмотреть","Сохрани как «День 14 — итог Фазы 1»","Послушай День 1 и сегодня подряд"], done_check:"Говоришь 2+ минуты без больших пауз? Фаза 1 пройдена!" },
+    { app:"Anki + Заметки", icon:"🃏", title:"Повторение всего", time:"15 мин", instructions:["Anki → вся колода","Заметка «INTA фразы» → прочитай вслух ВСЕ фразы за 2 недели"], done_check:"Выполнено" },
+    { app:"italki.com", icon:"💻", title:"Подготовка к завтрашнему уроку", time:"5 мин", instructions:["Завтра первый урок на italki!","Проверь: работает микрофон и камера","Подготовь: «Я хочу отработать знакомство и смолл-ток»"], done_check:"Готов к уроку" },
+  ]},
+  { day:15, date:"11 апр (Сб)", phase:2, min:70, focus:"🌟 Первый урок italki!", steps:[
+    { app:"Anki", icon:"🃏", title:"Утренний прогрев", time:"10 мин", instructions:["Повторение колоды ДО урока — разогрей мозг."], done_check:"Выполнено" },
+    { app:"italki.com", icon:"💻", title:"УРОК НА ITALKI (60 мин)", time:"60 мин", instructions:["Войди в урок через italki.com → My lessons","В начале скажи: «I'm preparing for INTA Annual Meeting in London on April 30. Can we do a roleplay: you're a trademark lawyer I just met?»","Попроси: исправлять частые ошибки, говорить с разной скоростью","Темы: знакомство и pitch → смолл-ток про Лондон → твоя практика → уход из разговора","В конце: попроси список твоих 5 главных ошибок"], done_check:"5 ошибок записаны в заметки — это ценнее учебника" },
+  ]},
+  { day:16, date:"12 апр (Вс)", phase:2, min:45, focus:"IP подкаст — старт", steps:[
+    { app:"Spotify", icon:"🎧", title:"IP Подкаст — первое знакомство", time:"20 мин", instructions:["Найди и подпишись: «The Trademark Lawyer Podcast» (или «IP Fridays»)","Последний выпуск → слушай 15–20 минут","НЕ пытайся понять каждое слово — привыкай к темпу и лексике","Выпиши в заметки 5–7 незнакомых слов которые расслышал"], done_check:"5–7 слов выписаны" },
+    { app:"Anki", icon:"🃏", title:"Добавь слова из подкаста", time:"15 мин", instructions:["Открой Anki → добавь слова из подкаста с примерами","Повтори всю колоду"], done_check:"Новые слова добавлены" },
+    { app:"Заметки (телефон)", icon:"✍️", title:"Дневник", time:"10 мин", instructions:["4–5 предложений о том что услышал в подкасте:","«Today I listened to a podcast about trademarks. They discussed... I noticed that...»"], done_check:"Написан" },
+  ]},
+  { day:17, date:"13 апр (Пн)", phase:2, min:45, focus:"TED + американский акцент", steps:[
+    { app:"YouTube", icon:"▶️", title:"TED Talk — американский акцент", time:"20 мин", instructions:["YouTube → «TED Talk lawyer legal» или «TED Talk business communication»","Выбери спикера с американским акцентом","Смотри видео полностью. Shadowing: выбери 2–3 минуты → повторяй","Американцы часто «съедают» конец слова: gonna, wanna, kinda"], done_check:"TED + shadowing выполнено" },
+    { app:"ELSA Speak", icon:"🗣️", title:"ELSA — Meetings", time:"10 мин", instructions:["ELSA → Business English → «Meetings and Conferences»"], done_check:"Урок завершён" },
+    { app:"Anki", icon:"🃏", title:"Anki + слова из TED", time:"10 мин", instructions:["Повторение. Добавь 5 слов из TED Talk."], done_check:"Выполнено" },
+    { app:"Заметки (телефон)", icon:"✍️", title:"Дневник", time:"5 мин", instructions:["3 предложения."], done_check:"Написан" },
+  ]},
+  { day:18, date:"14 апр (Вт)", phase:2, min:50, focus:"IP лексика — углубление", steps:[
+    { app:"Spotify", icon:"🎧", title:"Trademark Lawyer Podcast", time:"20 мин", instructions:["Следующий выпуск → слушай 20 минут","Выпиши 10 незнакомых слов/фраз","Для каждого слова найди пример: Google «[слово] in a sentence»"], done_check:"10 слов выписаны с примерами" },
+    { app:"Anki", icon:"🃏", title:"Anki — массовое пополнение", time:"20 мин", instructions:["Добавь все слова из подкаста","Добавь термины из своих реальных рабочих документов","Повтори всю колоду"], done_check:"50+ карточек в колоде" },
+    { app:"Заметки (телефон)", icon:"📝", title:"Чтение IP-текста вслух", time:"10 мин", instructions:["Открой любой IP-документ","Читай вслух 5–7 минут","Цель: «trademark infringement», «likelihood of confusion» — без запинки"], done_check:"IP термины летят автоматически" },
+  ]},
+  { day:19, date:"15 апр (Ср)", phase:2, min:45, focus:"Монолог о своей практике", steps:[
+    { app:"Spotify / Podcasts", icon:"🎧", title:"BBC Shadowing", time:"15 мин", instructions:["BBC Podcast → новый выпуск → Shadowing"], done_check:"Выполнено" },
+    { app:"Диктофон", icon:"🎙️", title:"Монолог о своей практике", time:"20 мин", instructions:["Говори 2 минуты о своей практике НА АНГЛИЙСКОМ — запиши:","«I work at [фирма] in [город]. My main practice area is trademark law.","I focus on [prosecution / litigation / both].","Most of my clients are [типы клиентов].","Recently I've been working on [интересный аспект].","One challenge we often face is [проблема].»","Послушай. Переделай слабые части. Запиши снова."], done_check:"2 записи сделано. Вторая лучше первой?" },
+    { app:"Anki", icon:"🃏", title:"Anki", time:"10 мин", instructions:["Повторение."], done_check:"Выполнено" },
+  ]},
+  { day:20, date:"16 апр (Чт)", phase:2, min:75, focus:"🌟 Второй урок italki", steps:[
+    { app:"Заметки (телефон)", icon:"📝", title:"Подготовка к уроку", time:"15 мин", instructions:["Перечитай ошибки с первого урока (День 15)","Тема урока: «нетворкинг на конференции»","Приготовь elevator pitch — используешь в начале ролевой игры"], done_check:"Готов к уроку" },
+    { app:"italki.com", icon:"💻", title:"УРОК — ролевая игра нетворкинг", time:"60 мин", instructions:["Скажи: «Today I want to focus on conference networking roleplay. You're a lawyer from another country I just met.»","СЦЕНАРИЙ 1: Встреча у кофе-стойки — знакомство, откуда, сессии","СЦЕНАРИЙ 2: Рабочий ужин — светская беседа (Лондон, путешествия, хобби)","СЦЕНАРИЙ 3: После доклада — обсудить тему, поделиться мнением","Попроси: «Can you give me feedback on my fluency and naturalness?»"], done_check:"Ошибки записаны. Список обновлён." },
+  ]},
+  { day:21, date:"17 апр (Пт)", phase:2, min:40, focus:"INTA YouTube — реальная речь", steps:[
+    { app:"YouTube", icon:"▶️", title:"INTA видео — реальная речь", time:"20 мин", instructions:["YouTube → поиск: «INTA Annual Meeting session» или «INTA trademark panel»","Выбери видео с панельной дискуссией (не соло-доклад)","Смотри 15–20 минут БЕЗ субтитров","Люди не говорят как дикторы BBC — привыкай к реальной речи","Выпиши 3–5 полезных фраз которые услышал"], done_check:"Понимаешь 60%+? Хорошо!" },
+    { app:"Anki", icon:"🃏", title:"Anki + фразы из INTA", time:"10 мин", instructions:["Повторение. Добавь фразы из INTA видео как карточки."], done_check:"Выполнено" },
+    { app:"ELSA Speak", icon:"🗣️", title:"ELSA Speak", time:"10 мин", instructions:["Daily Lesson"], done_check:"Урок завершён" },
+  ]},
+  { day:22, date:"18 апр (Сб)", phase:2, min:40, focus:"Разные акценты", steps:[
+    { app:"YouTube", icon:"▶️", title:"Австралийский и индийский акцент", time:"20 мин", instructions:["YouTube → «Australian IP lawyer interview» или «Australian legal podcast»","Слушай 10–15 минут. Австралийский акцент: «ay» → «eye» (today → «to-die»)","Потом: «Indian English lawyer» — послушай 5–10 мин","На INTA будут участники из 100+ стран — разные акценты это реальность"], done_check:"Оба акцента прослушаны" },
+    { app:"Anki", icon:"🃏", title:"Anki", time:"10 мин", instructions:["Повторение колоды."], done_check:"Выполнено" },
+    { app:"Заметки (телефон)", icon:"✍️", title:"Дневник", time:"10 мин", instructions:["5 предложений. Уверенность растёт?"], done_check:"Написан" },
+  ]},
+  { day:23, date:"19 апр (Вс)", phase:2, min:45, focus:"Madrid Protocol — объяснение вслух", steps:[
+    { app:"Spotify", icon:"🎧", title:"IP Fridays подкаст", time:"15 мин", instructions:["IP Fridays → последний выпуск → 15 мин. Выпиши 5 слов."], done_check:"5 слов выписаны" },
+    { app:"Диктофон", icon:"🎙️", title:"Монолог: Madrid Protocol", time:"20 мин", instructions:["Объясни Madrid Protocol на английском за 90 секунд — запиши:","«The Madrid Protocol allows trademark owners to protect their marks in multiple countries through a single application. Instead of filing separately in each country, you file one application with your national office, and it's forwarded to the countries you designate...»","Послушай. Это звучит понятно? Перепиши своими словами."], done_check:"Объяснение звучит естественно — признак уровня C1!" },
+    { app:"Anki", icon:"🃏", title:"Anki", time:"10 мин", instructions:["Повторение."], done_check:"Выполнено" },
+  ]},
+  { day:24, date:"20 апр (Пн)", phase:2, min:75, focus:"🌟 Третий урок italki", steps:[
+    { app:"Anki + Заметки", icon:"🃏", title:"Утренний прогрев", time:"15 мин", instructions:["Anki → повторение","Перечитай список ошибок с прошлых уроков"], done_check:"Готов к уроку" },
+    { app:"italki.com", icon:"💻", title:"УРОК — профессиональные темы", time:"60 мин", instructions:["Скажи: «Today I want to practice discussing professional IP topics. Please push me to keep talking.»","СЦЕНАРИЙ 1: «What's the IP landscape like in your country?» — говори 2–3 мин без остановок","СЦЕНАРИЙ 2: «What do you think about AI-generated trademarks?»","СЦЕНАРИЙ 3: Dinner table — хобби, путешествия, Лондон","В конце: попроси оценить твой уровень по шкале B1–C1"], done_check:"Оценка получена, рекомендации записаны" },
+  ]},
+  { day:25, date:"21 апр (Вт)", phase:2, min:40, focus:"Согласие и несогласие", steps:[
+    { app:"Spotify / Podcasts", icon:"🎧", title:"BBC Shadowing", time:"15 мин", instructions:["BBC Podcast → Shadowing"], done_check:"Выполнено" },
+    { app:"Заметки (телефон)", icon:"📝", title:"Фразы: соглашаться и спорить", time:"15 мин", instructions:["Произнеси по 5 раз каждую — должны вылетать автоматически:","СОГЛАСИТЬСЯ: «Absolutely — that's exactly what we've been seeing too.»","СОГЛАСИТЬСЯ: «That's a really good point, I couldn't agree more.»","СОГЛАСИТЬСЯ+ДОБАВИТЬ: «You're right, and I'd add that...»","НЕ СОГЛАСИТЬСЯ: «That's interesting — in my experience it's slightly different.»","НЕ СОГЛАСИТЬСЯ: «I see your point, but I wonder if...»","НЕ СОГЛАСИТЬСЯ: «That's one way to look at it. Another perspective might be...»"], done_check:"Все фразы произносятся уверенно" },
+    { app:"Anki", icon:"🃏", title:"Anki", time:"10 мин", instructions:["Повторение. Добавь понравившиеся фразы как карточки."], done_check:"Выполнено" },
+  ]},
+  { day:26, date:"22 апр (Ср)", phase:2, min:40, focus:"Интенсивное аудирование", steps:[
+    { app:"YouTube", icon:"▶️", title:"INTA видео — техника 3 просмотра", time:"25 мин", instructions:["Найди новое INTA видео (другое чем в День 21)","Смотри 10 мин БЕЗ субтитров → запиши что понял","Смотри те же 10 мин С субтитрами → что пропустил?","Повтори ещё раз без субтитров — теперь понимаешь больше?"], done_check:"Техника «3 просмотра» даёт быстрый прогресс" },
+    { app:"Anki + Заметки", icon:"🃏", title:"Anki + дневник", time:"15 мин", instructions:["Anki → повторение. Дневник: 4 предложения."], done_check:"Выполнено" },
+  ]},
+  { day:27, date:"23 апр (Чт)", phase:2, min:75, focus:"🌟 Четвёртый урок italki — dinner simulation", steps:[
+    { app:"Заметки (телефон)", icon:"📝", title:"Подготовка к уроку", time:"15 мин", instructions:["Сценарий: конференц-ужин на 6 человек — разные страны","Темы: Лондон, прошлые INTA, хобби, IP-тренды","Приготовь «сложный» вопрос который хочешь отработать"], done_check:"Готов к уроку" },
+    { app:"italki.com", icon:"💻", title:"УРОК — dinner simulation", time:"60 мин", instructions:["Скажи: «Dinner conversation simulation. Mix professional and social. Use idioms sometimes.»","ЧАСТЬ 1 (20 мин): Светская беседа — еда в Лондоне, погода, путешествия","ЧАСТЬ 2 (20 мин): Переход к работе — «What's keeping you busy these days?»","ЧАСТЬ 3 (20 мин): Репетитор использует незнакомые слова — практикуй переспрашивать","После: запиши 3 новые идиомы которые услышал"], done_check:"3 идиомы записаны" },
+  ]},
+  { day:28, date:"24 апр (Пт)", phase:2, min:40, focus:"✅ Итог Фазы 2", steps:[
+    { app:"Диктофон", icon:"🎙️", title:"Финальная запись Фазы 2", time:"15 мин", instructions:["Запиши 3–4 минуты без подготовки:","1 мин: Elevator pitch + откуда ты и чем занимаешься","1 мин: Что такое Madrid Protocol — простым языком","1 мин: Твоё мнение об ИИ и товарных знаках","30 сек: Как уйти из разговора вежливо","Сохрани «День 28 — итог Фазы 2»","Послушай День 1, 14, 28 подряд"], done_check:"Понимаешь 70%+ IP-подкаста? Провёл 4 урока? Фаза 2 пройдена!" },
+    { app:"Anki", icon:"🃏", title:"Финал Фазы 2 — Anki", time:"15 мин", instructions:["Повторение ВСЕЙ колоды. Сколько карточек? Должно быть 60–80+."], done_check:"Выполнено" },
+    { app:"Заметки (телефон)", icon:"📝", title:"Анализ прогресса", time:"10 мин", instructions:["Напиши честно: что стало лучше за 4 недели?","Что всё ещё вызывает стресс?","На что сделать акцент в последние 5 дней?"], done_check:"Анализ написан" },
+  ]},
+  { day:29, date:"25 апр (Пт)", phase:3, min:80, focus:"🌟 Пятый урок — генеральная репетиция", steps:[
+    { app:"Заметки + Anki", icon:"📝", title:"Подготовка к уроку", time:"20 мин", instructions:["Перечитай ВСЕ свои «INTA фразы»","Вслух прочитай elevator pitch — все 3 версии","Anki → быстрое повторение 10 мин"], done_check:"Разогрелся и готов" },
+    { app:"italki.com", icon:"💻", title:"УРОК — ПОЛНАЯ СИМУЛЯЦИЯ (60 мин)", time:"60 мин", instructions:["Скажи: «Full conference simulation. No breaks, no help. Treat me like a real attendee you just met.»","УТРО: Встреча у регистрации — «Are you just arriving?»","КОФЕ-БРЕЙК: Случайный разговор с незнакомцем","ПОСЛЕ СЕССИИ: Обсуждение доклада","УЖИН: Светская беседа + профессиональные темы","После: «What were my 3 biggest weaknesses? What sounded most natural?»"], done_check:"Замечания записаны. Это золото для последних дней!" },
+  ]},
+  { day:30, date:"26 апр (Сб)", phase:3, min:40, focus:"Закрепление", steps:[
+    { app:"Заметки (телефон)", icon:"📝", title:"ВСЕ якорные фразы вслух", time:"15 мин", instructions:["Открой «INTA фразы» → прочитай вслух каждую фразу за 30 дней","Нестабильные → повтори 10 раз прямо сейчас","Выдели 5 фраз которые используешь ТОЧНО — выучи наизусть"], done_check:"Все фразы пройдены" },
+    { app:"YouTube", icon:"▶️", title:"INTA видео — финальный замер", time:"15 мин", instructions:["INTA Annual Meeting на YouTube → любое видео без субтитров 15 мин","Замерь сам себя: сколько % ты понимаешь?"], done_check:"70%+? Ты готов к конференции!" },
+    { app:"Anki", icon:"🃏", title:"Anki — только повторение", time:"10 мин", instructions:["Повторение. НИКАКИХ новых карточек."], done_check:"Выполнено" },
+  ]},
+  { day:31, date:"27 апр (Вс)", phase:3, min:35, focus:"Финальная запись — сравнение прогресса", steps:[
+    { app:"Диктофон", icon:"🎙️", title:"Финальная запись — сравнение", time:"20 мин", instructions:["Запиши 3–4 минуты — то же самое что в День 1","Сохрани «День 31 — финал»","Послушай ВСЕ три записи подряд: День 1 → День 14 → День 31"], done_check:"Слышишь разницу? Ты вырос на несколько уровней за месяц!" },
+    { app:"Anki", icon:"🃏", title:"Лёгкий Anki", time:"10 мин", instructions:["Только повторение. Не напрягайся."], done_check:"Выполнено" },
+    { app:"Заметки (телефон)", icon:"📝", title:"Письмо себе", time:"5 мин", instructions:["Напиши: «На конференции я буду уверенно себя чувствовать потому что...»","«Если не расслышу — скажу: Sorry, could you say that again?»","«Моя цель на INTA — познакомиться с [число] новыми людьми.»"], done_check:"Письмо написано — перечитай утром 30 апреля" },
+  ]},
+  { day:32, date:"28 апр (Пн)", phase:3, min:20, focus:"Лёгкий день — не перегружайся", steps:[
+    { app:"Anki", icon:"🃏", title:"Лёгкое повторение Anki", time:"10 мин", instructions:["Только карточки которые предложит система","Не добавляй ничего нового","Сегодня день отдыха мозга"], done_check:"Выполнено" },
+    { app:"Заметки (телефон)", icon:"📝", title:"Якорные фразы — как мантры", time:"10 мин", instructions:["Медленно прочитай вслух «INTA фразы»","Особое внимание: фразы «я не расслышал» — они спасут чаще всего","Это всё. Отдохни. Упакуй чемодан. Спи пораньше."], done_check:"Готов. Завтра последний день подготовки." },
+  ]},
+  { day:33, date:"29 апр (Вт)", phase:3, min:15, focus:"День перед конференцией 🚀", steps:[
+    { app:"Anki", icon:"🃏", title:"10 минут Anki — и всё", time:"10 мин", instructions:["Только то что предлагает система","После → ЗАКРОЙ приложение","Никакого нового материала. Никакого стресса."], done_check:"Последнее повторение сделано" },
+    { app:"Заметки (телефон)", icon:"📝", title:"Последняя памятка", time:"5 мин", instructions:["Прочитай только 3 самые важные фразы:","1. «Sorry, could you say that again? I want to make sure I got that right.»","2. «That's a great point — let me think about that for a second.»","3. «It was really nice meeting you — I hope we chat more later.»","Помни завтра: переспросить — профессионально, а не стыдно","Твои знания IP-права безупречны — язык просто инструмент","Улыбка и интерес к собеседнику важнее идеальной грамматики"], done_check:"Ты готов. Удачи на INTA! 🎉" },
+  ]},
+];
+
+const ANCHOR_PHRASES = [
+  { situation:"Знакомство",           phrase:"Hi, I'm [имя]. I work in trademark law in [город].",                                    when:"Стандартное начало",      color:"#2563EB" },
+  { situation:"Открыть разговор",     phrase:"What brings you to the conference this year?",                                           when:"Любой участник",          color:"#2563EB" },
+  { situation:"Не расслышал",         phrase:"Sorry, could you say that again? I want to make sure I got that right.",                  when:"Переспросить вежливо",    color:"#059669" },
+  { situation:"Думаю над ответом",    phrase:"That's a really interesting question — let me think for a second.",                       when:"Выиграть 3 секунды",      color:"#7C3AED" },
+  { situation:"Уйти из разговора",    phrase:"It was really nice meeting you — I hope we chat more later.",                            when:"Тёплое завершение",       color:"#DC2626" },
+  { situation:"Не знаю слово",        phrase:"I'm not sure of the exact term in English, but what I mean is...",                       when:"Всегда работает",         color:"#D97706" },
+  { situation:"Согласиться",          phrase:"Absolutely — that's exactly what we've been seeing in our jurisdiction too.",            when:"Профессиональное согласие", color:"#0891B2" },
+  { situation:"Не согласиться",       phrase:"That's interesting — in my experience it's slightly different, actually.",               when:"Культурно поспорить",     color:"#0891B2" },
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let completedSteps = {};
+let currentDayNum  = null;
+
+try { completedSteps = JSON.parse(localStorage.getItem("inta_steps") || "{}"); } catch {}
+
+function saveSteps() {
+  try { localStorage.setItem("inta_steps", JSON.stringify(completedSteps)); } catch {}
+}
+
+function isDayDone(day) {
+  return day.steps.every((_, i) => completedSteps[`${day.day}-${i}`]);
+}
+
+function totalDone() { return DAYS.filter(isDayDone).length; }
+
+function phaseColor(pid) { return PHASES.find(p => p.id === pid)?.color || "#2563EB"; }
+function phaseBg(pid)    { return PHASES.find(p => p.id === pid)?.light || "#DBEAFE"; }
+
+function todayDayNum() {
+  const start = new Date(2026, 2, 28);
+  const diff  = Math.floor((new Date() - start) / 86400000) + 1;
+  return diff >= 1 && diff <= 33 ? diff : null;
+}
+
+// ─── VIEWS ───────────────────────────────────────────────────────────────────
+function showView(name, dayNum) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  if (name === 'home')    renderHome();
+  if (name === 'day')     renderDay(DAYS[dayNum - 1]);
+  if (name === 'phrases') renderPhrases();
+  window.scrollTo(0, 0);
+}
+
+function goToday() {
+  const d = todayDayNum();
+  if (d) showView('day', d);
+}
+
+// ─── RENDER HOME ─────────────────────────────────────────────────────────────
+function renderHome() {
+  const done = totalDone();
+  const pct  = Math.round((done / 33) * 100);
+  document.getElementById('progress-text').textContent = `${done} / 33`;
+  document.getElementById('progress-bar').style.width  = pct + '%';
+  document.getElementById('progress-pct').textContent  = pct + '%';
+
+  // today button
+  const td = todayDayNum();
+  const btn = document.getElementById('btn-today');
+  if (td) {
+    btn.style.display = 'flex';
+    btn.textContent   = `▶ Сегодня — День ${td}`;
+  }
+
+  // phase tabs
+  const tabsEl = document.getElementById('phase-tabs');
+  tabsEl.innerHTML = '';
+  PHASES.forEach(ph => {
+    const pdays = DAYS.filter(d => d.phase === ph.id);
+    const dph   = pdays.filter(isDayDone).length;
+    const div   = document.createElement('div');
+    div.style.cssText = `flex:1;background:#fff;border-radius:10px;padding:10px 8px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.08);border:2px solid ${ph.color}22;`;
+    div.innerHTML = `
+      <div style="font-size:10px;color:${ph.color};font-weight:700;letter-spacing:1px;text-transform:uppercase;">${ph.label}</div>
+      <div style="font-size:11px;color:#555;margin-top:2px;">${ph.title}</div>
+      <div style="font-size:13px;font-weight:700;color:${ph.color};margin-top:4px;">${dph}/${pdays.length}</div>`;
+    tabsEl.appendChild(div);
+  });
+
+  // days list
+  const listEl = document.getElementById('days-list');
+  listEl.innerHTML = '';
+  PHASES.forEach(ph => {
+    const section = document.createElement('div');
+    section.style.marginBottom = '24px';
+    section.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div style="width:4px;height:20px;background:${ph.color};border-radius:2px;"></div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:${ph.color};">${ph.label} — ${ph.title}</div>
+          <div style="font-size:11px;color:#888;">${ph.days}</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;" id="phase-grid-${ph.id}"></div>`;
+    listEl.appendChild(section);
+
+    const grid = section.querySelector(`#phase-grid-${ph.id}`);
+    DAYS.filter(d => d.phase === ph.id).forEach(day => {
+      const done    = isDayDone(day);
+      const isToday = day.day === td;
+      const sdone   = day.steps.filter((_, i) => completedSteps[`${day.day}-${i}`]).length;
+      const btn     = document.createElement('button');
+      btn.onclick   = () => showView('day', day.day);
+      btn.style.cssText = `background:${done ? ph.color : isToday ? ph.light : '#fff'};border:${isToday ? `2px solid ${ph.color}` : done ? `1px solid ${ph.color}` : '1px solid #E5E7EB'};border-radius:12px;padding:10px 8px;cursor:pointer;text-align:left;box-shadow:${isToday ? `0 2px 8px ${ph.color}44` : '0 1px 3px rgba(0,0,0,0.06)'};transition:all 0.15s;`;
+      const progressBar = (!done && sdone > 0)
+        ? `<div style="margin-top:5px;background:#E5E7EB;border-radius:100px;height:3px;"><div style="width:${(sdone/day.steps.length)*100}%;background:${ph.color};height:100%;border-radius:100px;"></div></div>`
+        : '';
+      btn.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div style="font-size:11px;color:${done ? 'rgba(255,255,255,0.7)' : '#9CA3AF'};">День</div>
+          ${done ? '<span style="font-size:14px;color:#fff;">✓</span>' : isToday ? `<span style="font-size:10px;background:${ph.color};color:#fff;border-radius:4px;padding:1px 5px;">сегодня</span>` : ''}
+        </div>
+        <div style="font-size:20px;font-weight:700;color:${done ? '#fff' : ph.color};line-height:1.1;">${day.day}</div>
+        <div style="font-size:10px;color:${done ? 'rgba(255,255,255,0.8)' : '#6B7280'};margin-top:2px;">${day.date.split(' ').slice(0,2).join(' ')}</div>
+        ${progressBar}`;
+      grid.appendChild(btn);
+    });
+  });
+}
+
+// ─── RENDER DAY ──────────────────────────────────────────────────────────────
+function renderDay(day) {
+  const pc  = phaseColor(day.phase);
+  const pb  = phaseBg(day.phase);
+  const ph  = PHASES.find(p => p.id === day.phase);
+  const sdone = day.steps.filter((_, i) => completedSteps[`${day.day}-${i}`]).length;
+
+  document.getElementById('day-header').innerHTML = `
+    <div style="background:${pc};padding:20px 16px 16px;">
+      <button onclick="showView('home')" style="background:rgba(255,255,255,0.2);border:none;color:#fff;padding:6px 14px;border-radius:20px;font-size:13px;margin-bottom:12px;cursor:pointer;">← Назад</button>
+      <div style="display:flex;align-items:flex-end;gap:12px;">
+        <div style="background:rgba(255,255,255,0.15);border-radius:12px;padding:8px 14px;text-align:center;">
+          <div style="font-size:10px;color:rgba(255,255,255,0.7);letter-spacing:2px;text-transform:uppercase;">ДЕНЬ</div>
+          <div style="font-size:36px;font-weight:700;color:#fff;line-height:1;">${day.day}</div>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:14px;color:rgba(255,255,255,0.8);">${day.date}</div>
+          <div style="font-size:16px;font-weight:700;color:#fff;margin-top:2px;">${day.focus}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;">⏱ ${day.min} минут • ${ph?.label}</div>
+        </div>
+      </div>
+      <div style="margin-top:14px;background:rgba(255,255,255,0.2);border-radius:100px;height:6px;">
+        <div id="day-prog-bar" style="width:${(sdone/day.steps.length)*100}%;background:#fff;height:100%;border-radius:100px;transition:width 0.3s;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px;">
+        <span style="font-size:11px;color:rgba(255,255,255,0.6);">Шагов выполнено</span>
+        <span id="day-prog-txt" style="font-size:11px;color:rgba(255,255,255,0.9);font-weight:700;">${sdone} / ${day.steps.length}</span>
+      </div>
+    </div>`;
+
+  renderDaySteps(day);
+}
+
+function renderDaySteps(day) {
+  const pc   = phaseColor(day.phase);
+  const pb   = phaseBg(day.phase);
+  const done = isDayDone(day);
+  const el   = document.getElementById('day-steps');
+  el.innerHTML = '';
+
+  if (done) {
+    const banner = document.createElement('div');
+    banner.style.cssText = 'background:#D1FAE5;border:1px solid #6EE7B7;border-radius:12px;padding:12px 16px;margin-bottom:16px;text-align:center;';
+    banner.innerHTML = '<div style="font-size:20px;">✅</div><div style="font-size:14px;font-weight:700;color:#065F46;">День завершён!</div>';
+    el.appendChild(banner);
+  }
+
+  day.steps.forEach((step, idx) => {
+    const key  = `${day.day}-${idx}`;
+    const isDone = !!completedSteps[key];
+    const card = document.createElement('div');
+    card.id    = `step-card-${idx}`;
+    card.style.cssText = `background:#fff;border-radius:14px;margin-bottom:14px;overflow:hidden;box-shadow:${isDone ? 'none' : '0 1px 4px rgba(0,0,0,0.08)'};border:1.5px solid ${isDone ? pc+'44' : '#E5E7EB'};opacity:${isDone ? 0.85 : 1};transition:all 0.2s;`;
+
+    // build instructions HTML
+    let instrHtml = '';
+    step.instructions.forEach(line => {
+      if (line.startsWith('✅')) {
+        instrHtml += `<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:8px 10px;margin-top:8px;font-size:12px;color:#166534;font-style:italic;">${line}</div>`;
+      } else if (line.startsWith('ВАЖНО')) {
+        instrHtml += `<div style="background:#FFFBEB;border:1px solid #FCD34D;border-radius:8px;padding:8px 10px;margin-top:6px;font-size:12px;color:#92400E;">${line}</div>`;
+      } else if (line.startsWith('→')) {
+        instrHtml += `<div style="display:flex;gap:8px;margin-top:6px;align-items:flex-start;"><span style="color:${pc};font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:13px;color:#374151;line-height:1.5;">${line.slice(1).trim()}</span></div>`;
+      } else if (line.startsWith('—') || line.startsWith('-')) {
+        instrHtml += `<div style="display:flex;gap:8px;margin-top:6px;align-items:flex-start;"><span style="color:${pc};font-weight:700;font-size:16px;flex-shrink:0;line-height:18px;">·</span><span style="font-size:13px;color:#374151;line-height:1.5;">${line.slice(1).trim()}</span></div>`;
+      } else if (/^\d+\./.test(line)) {
+        const num = line.match(/^\d+/)[0];
+        instrHtml += `<div style="display:flex;gap:8px;margin-top:5px;align-items:flex-start;"><span style="color:${pc};font-weight:700;font-size:12px;flex-shrink:0;margin-top:1px;min-width:18px;">${num}.</span><span style="font-size:13px;color:#374151;line-height:1.5;">${line.replace(/^\d+\./, '').trim()}</span></div>`;
+      } else {
+        instrHtml += `<div style="font-size:13px;color:#374151;line-height:1.5;margin-top:8px;">${line}</div>`;
+      }
+    });
+
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 14px 10px;">
+        <div style="width:36px;height:36px;background:${isDone ? pc : pb};border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
+          ${isDone ? `<span style="color:#fff;font-weight:700;">✓</span>` : step.icon}
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:700;color:${isDone ? '#9CA3AF' : '#1a1a1a'};text-decoration:${isDone ? 'line-through' : 'none'};">${step.title.split('\n')[0]}</div>
+          <div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap;">
+            <span style="font-size:11px;background:${pb};color:${pc};padding:2px 8px;border-radius:20px;font-weight:600;">⏱ ${step.time}</span>
+            <span style="font-size:11px;background:#F3F4F6;color:#6B7280;padding:2px 8px;border-radius:20px;">${step.app}</span>
+          </div>
+        </div>
+      </div>
+      ${!isDone ? `
+      <div style="padding:0 14px 14px;">
+        <div style="border-top:1px solid #F3F4F6;padding-top:10px;">${instrHtml}</div>
+        ${step.done_check ? `<div style="background:#EFF6FF;border-radius:8px;padding:8px 10px;margin-top:10px;font-size:12px;color:#1D4ED8;font-style:italic;">✓ Готово когда: ${step.done_check}</div>` : ''}
+      </div>` : ''}
+      <div style="padding:0 14px 14px;">
+        <button onclick="toggleStep(${day.day}, ${idx})" style="width:100%;padding:10px;border:none;border-radius:10px;cursor:pointer;background:${isDone ? '#F3F4F6' : pc};color:${isDone ? '#9CA3AF' : '#fff'};font-size:13px;font-weight:700;font-family:Georgia,serif;transition:all 0.2s;">
+          ${isDone ? '↩ Отметить как невыполненное' : '✓ Выполнено!'}
+        </button>
+      </div>`;
+    el.appendChild(card);
+  });
+}
+
+function toggleStep(dayNum, idx) {
+  const key = `${dayNum}-${idx}`;
+  completedSteps[key] = !completedSteps[key];
+  saveSteps();
+  const day = DAYS[dayNum - 1];
+  // update progress bar
+  const sdone = day.steps.filter((_, i) => completedSteps[`${dayNum}-${i}`]).length;
+  const bar = document.getElementById('day-prog-bar');
+  const txt = document.getElementById('day-prog-txt');
+  if (bar) bar.style.width = `${(sdone/day.steps.length)*100}%`;
+  if (txt) txt.textContent = `${sdone} / ${day.steps.length}`;
+  renderDaySteps(day);
+}
+
+// ─── RENDER PHRASES ──────────────────────────────────────────────────────────
+function renderPhrases() {
+  const groups = [
+    { title:"Знакомство",                  color:"#2563EB", situations:["Знакомство","Открыть разговор"] },
+    { title:"Не расслышал / переспросить", color:"#059669", situations:["Не расслышал"] },
+    { title:"Думаю над ответом",            color:"#7C3AED", situations:["Думаю над ответом"] },
+    { title:"Уйти из разговора",            color:"#DC2626", situations:["Уйти из разговора"] },
+    { title:"Не знаю слово",               color:"#D97706", situations:["Не знаю слово"] },
+    { title:"Соглашаться и спорить",        color:"#0891B2", situations:["Согласиться","Не согласиться"] },
+  ];
+  const el = document.getElementById('phrases-body');
+  el.innerHTML = '';
+  groups.forEach(grp => {
+    const phrases = ANCHOR_PHRASES.filter(p => grp.situations.includes(p.situation));
+    const sec = document.createElement('div');
+    sec.style.marginBottom = '20px';
+    let cards = '';
+    phrases.forEach(ph => {
+      cards += `<div style="background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;border-left:3px solid ${grp.color};box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+        <div style="font-size:14px;font-weight:600;color:#1a1a1a;line-height:1.4;">"${ph.phrase}"</div>
+        <div style="font-size:11px;color:#9CA3AF;margin-top:6px;font-style:italic;">${ph.when}</div>
+      </div>`;
+    });
+    sec.innerHTML = `
+      <div style="font-size:12px;font-weight:700;color:${grp.color};letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+        <div style="width:3px;height:14px;background:${grp.color};border-radius:2px;"></div>${grp.title}
+      </div>${cards}`;
+    el.appendChild(sec);
+  });
+  const footer = document.createElement('div');
+  footer.style.cssText = 'background:#1F4E79;border-radius:14px;padding:16px;text-align:center;margin-top:8px;';
+  footer.innerHTML = `<div style="font-size:15px;font-weight:700;color:#fff;">Главное помнить:</div>
+    <div style="font-size:13px;color:#93C5FD;margin-top:6px;line-height:1.6;">Переспросить — профессионально.<br>Улыбка важнее идеальной грамматики.<br>Твои знания IP-права безупречны. 🚀</div>`;
+  el.appendChild(footer);
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+renderHome();
+</script>
+</body>
+</html>
